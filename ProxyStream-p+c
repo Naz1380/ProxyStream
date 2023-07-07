@@ -1,0 +1,96 @@
+class ProxyStream:
+    def __init__(self):
+        self.data_packets = []
+        self.is_end = False
+
+    def append(self, data):
+        self.data_packets.append(data)
+
+    def next_data(self):
+        if self.data_packets:
+            return self.data_packets.pop(0)
+        else:
+            return None
+
+    def is_end_of_stream(self):
+        return self.is_end
+
+    def end_stream(self):
+        self.is_end = True
+
+#####################################   Producer #####################################
+
+def producer(stream):
+    #stream = ProxyStream()
+
+    i = 0
+    while True:
+        data = generate_data()
+
+        stream.append(data)
+        
+        i += 1
+
+        if end_of_stream_condition(i):
+            stream.end_stream()
+            break
+            
+
+    return stream
+
+
+def generate_data():
+    
+    return "Data"
+
+
+def end_of_stream_condition(i):
+    return i > 100
+
+#####################################   consumer #####################################
+
+def consumer(stream):
+    while True:
+        data = stream.next_data()
+        if data is None:
+            break
+
+        process_data(data)
+    
+
+def process_data(data):
+    print("Processing data:", data)
+
+
+stream = ProxyStream()
+producer(stream)
+consumer(stream)
+
+
+
+
+
+
+"""def main():
+    stream = ProxyStream() 
+
+    stream = producer(stream)
+
+    consumer(stream)
+
+
+    producer_thread = threading.Thread(target=producer, args=(stream,))
+    consumer_thread = threading.Thread(target=consumer, args=(stream,))
+
+    producer_thread.start()
+    consumer_thread.start()
+
+    producer_thread.join()
+    consumer_thread.join()
+
+if __name__ == "__main__":
+    main()
+"""
+
+
+
