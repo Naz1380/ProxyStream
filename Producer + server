@@ -1,0 +1,60 @@
+class ProxyStream:
+    def __init__(self):
+        self.data_packets = []
+        self.is_end = False
+
+    def append(self, data):
+        self.data_packets.append(data)
+
+    def next_data(self):
+        if self.data_packets:
+            return self.data_packets.pop(0)
+        else:
+            return "None"
+
+    def is_end_of_stream(self):
+        return self.is_end
+
+    def end_stream(self):
+        self.is_end = True
+
+
+def producer(stream):
+    i = 0
+    while i < 1000:
+        data = generate_data()
+        stream.append(data)
+        i += 1
+    
+    stream.end_stream()
+    print('Stream complete')
+    return stream
+
+
+def generate_data():
+    return "Data"
+
+
+def end_of_stream_condition(i):
+    return i > 100
+
+
+def server():
+    context = zmq.Context()
+    socket = context.socket(zmq.REP)
+    socket.bind("tcp://*:5555")
+
+    stream = ProxyStream()
+    print(stream.is_end_of_stream())
+    socket.recv()
+
+    while not stream.is_end_of_stream():
+        data = stream.next_data()
+        print(data)
+        socket.send_string(data)
+        socket.recv()
+
+    socket.send_string("END")
+
+    socket.close()
+    context.term()
