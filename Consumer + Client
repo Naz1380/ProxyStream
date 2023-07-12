@@ -1,0 +1,54 @@
+import asyncio
+import multiprocessing
+import zmq
+from multiprocessing import Process
+def client():
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://localhost:5555")
+
+    socket.send_string("send now")
+
+    while True:
+        data = socket.recv_string()
+
+        if data == "END":
+            break
+
+        process_data(data)
+
+        socket.send_string("ACK")
+
+    socket.close()
+    context.term()
+
+
+def consumer(stream):
+    while True:
+        data = stream.next_data()
+        if data is None:
+            break
+        process_data(data)
+
+
+def process_data(data):
+    print("Processing data:", data)
+
+
+import threading
+
+stream = ProxyStream()
+stream = producer(stream)
+consumer(stream)
+
+server_thread = threading.Thread(target=server)
+server_thread.start()
+
+client()
+
+server_thread.join()
+
+
+
+#start a connector between clinet and server
+#look into using asynco for the while loops
