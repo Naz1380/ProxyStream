@@ -2,6 +2,7 @@ import asyncio
 import multiprocessing
 import zmq
 from multiprocessing import Process
+##########adding the zmq for the client and server interaction#####
 def client():
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
@@ -22,7 +23,7 @@ def client():
     socket.close()
     context.term()
 
-
+#consumer gives the next data packets 
 def consumer(stream):
     while True:
         data = stream.next_data()
